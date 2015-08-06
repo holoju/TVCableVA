@@ -1,0 +1,30 @@
+{
+  "configuration":
+  {
+    "appenders": {
+      "RandomAccessFile": {
+        "name": "FILE",
+        "fileName": "app.log",
+        "PatternLayout": {
+          "pattern": "%d %p %c{1.} [%t] %m%n"
+        }
+      },
+      "Console": {
+        "name": "STDOUT",
+        "PatternLayout": {
+          "pattern": "%highlight{[%-5level] - [%t] - .%c{1}: %msg%n}"
+        }
+      }
+    },
+    "loggers": {
+      "root": {
+        "level": "all",
+        "AppenderRef": [
+          {
+            "ref": "STDOUT"
+          }
+        ]
+      }
+    }
+  }
+}
