@@ -6,14 +6,15 @@ import freemarker.template.Version;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
-import spark.Response;
-import spark.Route;
-import spark.Spark;
+import spark.*;
+import spark.template.freemarker.FreeMarkerEngine;
+
 
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+
+import static spark.Spark.*;
 
 
 /**
@@ -25,10 +26,17 @@ public class Main {
 
 
     public static void main(String[] args) {
-        final Configuration configuracion = new Configuration(new Version("2.3.23")); //configuracion para los templates
-        configuracion.setClassForTemplateLoading(Main.class,"/vistas/"); //direcciona la carpeta de vistas
 
-        Spark.get(new Route("/") {  //la ruta es la url del navegador
+        // Configuracion para la carpeta de archivos estaticos
+        staticFileLocation("/");
+
+        final Configuration configuracion = new Configuration(new Version("2.3.23")); //configuracion para los templates
+        configuracion.setClassForTemplateLoading(Main.class, "/"); //direcciona la carpeta de vistas
+
+
+
+
+     /*   Spark.get(new Route("/") {  //la ruta es la url del navegador
             @Override
             public Object handle(Request request, Response response) {
                 StringWriter writer = new StringWriter();
@@ -46,35 +54,67 @@ public class Main {
                     e.printStackTrace();
                 }
                 log.info("LLamando a la primer pantalla");
-                return writer; //se retorna el writer con todo el codigo
+                return writer; //se retorna el writer con todos el codigo
             }
         });
 
-
-
-        Spark.get(new Route("/test") {
+        Spark.get(new Route("/nuevo") {  //la ruta es la url del navegador
             @Override
             public Object handle(Request request, Response response) {
-                return "La aplicacion funciona correctamente";
+                //response.type("text/html");
+                StringWriter writer = new StringWriter();
+                try {
+                    Template hola = configuracion.getTemplate("pages/examples/login.ftl"); //se carga el template
+
+                    Map<String, Object> datos = new HashMap<String, Object>(); //se crea un map para enviar datos al template
+                    datos.put("nombre", "Oscar"); //se adiciona valores al map de datosl
+                    datos.put("ap", "Lopez"); //se adiciona valores
+
+                    hola.process(datos, writer); //se pocesa el template y se obtiene el writer completo
+
+                } catch (Exception e) {
+                    halt(500);
+                    e.printStackTrace();
+                }
+                log.info("LLamando a la primer pantalla");
+                return writer; //se retorna el writer con todos el codigo
             }
         });
+*/
 
 
+        get("/ping", (req, res) -> "pong\n");
+        get("/test", (req, res) -> "La aplicacion funciona correctamente");
 
-        Spark.get(new Route("/saludar/:algo") {
-            @Override
-            public Object handle(Request request, Response response) {
-                return "Hola "+request.params(":algo");
-            }
-        });
+        get("/saludar/:algo", (request, response) -> "Hola " + request.params(":algo"));
 
-        Spark.post(new Route("/logear") {
-            @Override
-            public Object handle(Request request, Response response) {
-                String user=request.queryParams("user");
-                String pass = request.queryParams("pass");
-                return "logueado correctamente "+user;
-            }
-        });
+        post("/loguear", ((request, response) -> {
+            String user = request.queryParams("user");
+            String pass = request.queryParams("pass");
+            return "logueado correctamente " + user;
+        }));
+
+        get("/hello", (request, response) -> {
+            Map<String, Object> attributes = new HashMap<>();
+            attributes.put("message", "Hello World!");
+            attributes.put("name", "Horacio Lopez Justiniano");
+
+            // The hello.ftl file is located in directory:
+            // src/test/resources/spark/template/freemarker
+            return new ModelAndView(attributes, "hello.html");
+        }, new FreeMarkerEngine(configuracion));
+
+        get("/template/:name", (request, response) -> {
+            HashMap<String, Object> model = new HashMap<>();
+            model.put("name", request.params(":name"));
+            return new ModelAndView(model, "hello.ftl");
+        }, new FreeMarkerEngine(configuracion));
+
+        get("/index", (request, response) -> {
+            HashMap<String, Object> model = new HashMap<>();
+            return new ModelAndView(model, "index.html");
+        }, new FreeMarkerEngine(configuracion));
+
     }
+
 }
