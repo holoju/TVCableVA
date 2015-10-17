@@ -68,17 +68,22 @@ public class Main {
 
         //primer pagina o inicio
         get("/", (request, response) -> {
-            return new ModelAndView(null, "/pages/examples/login.html");
+            return new ModelAndView(null, "/web/index.html");
         }, fremarkerConfiguracion);
 
         get("/principal", (request, response) -> {
             if (util.estaLogueado(request)) {
-                return new ModelAndView(null, "/web/index.html");
+                return new ModelAndView(null, "index.html");
             } else {
                 return new ModelAndView(null, "/pages/examples/sesionperdida.html");
             }
         }, fremarkerConfiguracion);
 
+        get("/login", (request, response) -> {
+
+            return new ModelAndView(null, "/pages/examples/login.html");
+
+        }, fremarkerConfiguracion);
 
         //ejemplo para redireccionar
         get("/index", (request, response) -> {
