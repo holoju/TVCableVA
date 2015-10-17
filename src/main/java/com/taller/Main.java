@@ -92,6 +92,13 @@ public class Main {
             return null;
         });
 
+        get("/salir", (request, response) -> {
+            request.session().removeAttribute("usuario");
+            response.redirect("/");
+            halt();
+            return null;
+        }, fremarkerConfiguracion);
+
         //para cualquier otra cosa redireccionar a la pagina 404
         get(":otraCosa", (request, response) -> {
             //0log.error("404 pagina no encontrada!!");
@@ -100,10 +107,7 @@ public class Main {
             return new ModelAndView(datos, "/pages/examples/404.html");
         }, fremarkerConfiguracion);
 
-        get("logout", (request, response) -> {
-            request.session().removeAttribute("usuario");
-            return new ModelAndView(null, "/");
-        }, fremarkerConfiguracion);
+
 
         //POST
         post("/login", ((request, response) -> {
