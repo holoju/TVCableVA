@@ -19,7 +19,6 @@ import spark.template.freemarker.FreeMarkerEngine;
 
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -30,6 +29,7 @@ import static spark.Spark.*;
  */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class); //para logers
+    public static Utilitarios util = new Utilitarios();
 
 
     public static void main(String[] args) {
@@ -51,15 +51,15 @@ public class Main {
         //MongoCollection<BsonDocument> collection = db.getCollection("names",BsonDocument.class);  //trae bsondocuments que son safe type
 
 
+        //temporal
         Document horacio = new Document("nombre", "Horacio Lopez Justiniano")
                 .append("edad", 25)
                 .append("usuario", "holoju")
                 .append("password", "horacio");
-
-
         //coleccion.insertOne(horacio); //inserta un usuario a la base de datos
 
 
+        //GET
         //probar que esta funcionando
         get("/ping", (req, res) -> "pong\n");
         get("/test", (req, res) -> "La aplicacion funciona correctamente");
@@ -71,11 +71,44 @@ public class Main {
             return new ModelAndView(null, "/pages/examples/login.html");
         }, fremarkerConfiguracion);
 
+        get("/principal", (request, response) -> {
+            if (util.estaLogueado(request)) {
+                return new ModelAndView(null, "/web/index.html");
+            } else {
+                return new ModelAndView(null, "/pages/examples/sesionperdida.html");
+            }
+        }, fremarkerConfiguracion);
 
+
+        //ejemplo para redireccionar
+        get("/index", (request, response) -> {
+            response.redirect("/");
+            halt();
+            return null;
+        });
+
+        //para cualquier otra cosa redireccionar a la pagina 404
+        get(":otraCosa", (request, response) -> {
+            //0log.error("404 pagina no encontrada!!");
+            HashMap<String, Object> datos = new HashMap<>();
+            datos.put("pagina", request.params(":otraCosa"));
+            return new ModelAndView(datos, "/pages/examples/404.html");
+        }, fremarkerConfiguracion);
+
+        get("logout", (request, response) -> {
+            request.session().removeAttribute("usuario");
+            return new ModelAndView(null, "/");
+        }, fremarkerConfiguracion);
+
+        //POST
         post("/login", ((request, response) -> {
             //se recupera los datos del formulario
             String user = request.queryParams("usuario");
             String pass = request.queryParams("password");
+
+            HashMap<String, Object> datos = new HashMap<>();
+            String url = "/";
+
             if (user.isEmpty() || pass.isEmpty()) {
                 log.debug("usuario o password son vacios");
                 response.redirect("/");
@@ -86,117 +119,33 @@ public class Main {
 
 
                 if (usuarioEncontrado != null) {
-                    //redireccionar a la pagina principal
-                    System.out.println("Usuario encontrado");
                     printJson(usuarioEncontrado);
+                    System.out.println("Usuario encontrado");
                     //redireccionar a pagina principal
-                } else {
-                    //mandar mensaje de error a la pagina de login
-                    System.out.println("no hay el usuario");
-                    response.redirect("/");
-                }
+                    //response.redirect("/principal");
+                    datos.put("usuario", usuarioEncontrado);
 
+
+                    request.session().attribute("usuario", user);
+
+                    System.out.println("Recuperando de la sesion:: '" + (String) request.session().attribute("usuario") + "'");
+                    response.redirect("/principal");
+
+                } else {
+                    System.out.println("NO SE ENCONTRO EL USUARIO");
+                    //mandar mensaje de error a la pagina de login
+                    datos.put("mensaje", "Usuario no encontrado");
+                    url = "/";
+                    response.redirect(url);
+                }
             }
-            return "logueado correctamente " + user;
+            return null;
+
         }));
 
 
-        //ejemplo para redireccionar
-        get("/index", (request, response) -> {
-            response.redirect("/");
-            halt();
-            return null;
-        });
-
-
-        //otros ejemplos, despues borrar
-        get("/hello", (request, response) -> {
-            Map<String, Object> attributes = new HashMap<>();
-            attributes.put("message", "Hello World!");
-            attributes.put("name", "Horacio Lopez Justiniano");
-
-            // The hello.ftl file is located in directory:
-            // src/test/resources/spark/template/freemarker
-            return new ModelAndView(attributes, "/pages/examples/register.html");
-        }, fremarkerConfiguracion);
-
-        get("/template/:name", (request, response) -> {
-            HashMap<String, Object> model = new HashMap<>();
-            model.put("name", request.params(":name"));
-            return new ModelAndView(model, "hello.ftl");
-        }, new FreeMarkerEngine(configuracion));
-
-
-        //para cualquier otra cosa redireccionar a la pagina 404
-        get(":otraCosa", (request, response) -> {
-            //0log.error("404 pagina no encontrada!!");
-            HashMap<String, Object> datos = new HashMap<>();
-            datos.put("pagina", request.params(":otraCosa"));
-
-            return new ModelAndView(datos, "/pages/examples/404.html");
-        }, fremarkerConfiguracion);
-
-
-
-
-
-
-
-
-
-
-     /*   Spark.get(new Route("/") {  //la ruta es la url del navegador
-            @Override
-            public Object handle(Request request, Response response) {
-                StringWriter writer = new StringWriter();
-                try {
-                    Template hola = configuracion.getTemplate("login.ftl"); //se carga el template
-
-                    Map<String, Object> datos = new HashMap<String, Object>(); //se crea un map para enviar datos al template
-                    datos.put("nombre", "Oscar"); //se adiciona valores al map de datos
-                    datos.put("ap", "Lopez"); //se adiciona valores
-
-                    hola.process(datos, writer); //se pocesa el template y se obtiene el writer completo
-
-                } catch (Exception e) {
-                    halt(500);
-                    e.printStackTrace();
-                }
-                log.info("LLamando a la primer pantalla");
-                return writer; //se retorna el writer con todos el codigo
-            }
-        });
-
-        Spark.get(new Route("/nuevo") {  //la ruta es la url del navegador
-            @Override
-            public Object handle(Request request, Response response) {
-                //response.type("text/html");
-                StringWriter writer = new StringWriter();
-                try {
-                    Template hola = configuracion.getTemplate("pages/examples/login.ftl"); //se carga el template
-
-                    Map<String, Object> datos = new HashMap<String, Object>(); //se crea un map para enviar datos al template
-                    datos.put("nombre", "Oscar"); //se adiciona valores al map de datosl
-                    datos.put("ap", "Lopez"); //se adiciona valores
-
-                    hola.process(datos, writer); //se pocesa el template y se obtiene el writer completo
-
-                } catch (Exception e) {
-                    halt(500);
-                    e.printStackTrace();
-                }
-                log.info("LLamando a la primer pantalla");
-                return writer; //se retorna el writer con todos el codigo
-            }
-        });
-*/
 
     }
-
-    private static void inesertaUsuario() {
-
-    }
-
 
     public static void printJson(Document document) {
         JsonWriter jsonWriter = new JsonWriter(new StringWriter(), new JsonWriterSettings(JsonMode.SHELL, true));
