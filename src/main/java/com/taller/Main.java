@@ -59,8 +59,6 @@ public class Main {
 
         //coleccion.insertOne(horacio); //inserta un usuario a la base de datos
 
-        inesertaUsuario();
-
 
         //probar que esta funcionando
         get("/ping", (req, res) -> "pong\n");
@@ -91,9 +89,11 @@ public class Main {
                     //redireccionar a la pagina principal
                     System.out.println("Usuario encontrado");
                     printJson(usuarioEncontrado);
+                    //redireccionar a pagina principal
                 } else {
                     //mandar mensaje de error a la pagina de login
                     System.out.println("no hay el usuario");
+                    response.redirect("/");
                 }
 
             }
@@ -117,7 +117,7 @@ public class Main {
 
             // The hello.ftl file is located in directory:
             // src/test/resources/spark/template/freemarker
-            return new ModelAndView(attributes, "hello.html");
+            return new ModelAndView(attributes, "/pages/examples/register.html");
         }, fremarkerConfiguracion);
 
         get("/template/:name", (request, response) -> {
@@ -132,6 +132,7 @@ public class Main {
             //0log.error("404 pagina no encontrada!!");
             HashMap<String, Object> datos = new HashMap<>();
             datos.put("pagina", request.params(":otraCosa"));
+
             return new ModelAndView(datos, "/pages/examples/404.html");
         }, fremarkerConfiguracion);
 
