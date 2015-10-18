@@ -73,7 +73,11 @@ public class Main {
 
         get("/principal", (request, response) -> {
             if (util.estaLogueado(request)) {
-                return new ModelAndView(null, "index.html");
+
+                HashMap<String, Object> datos = new HashMap<>();
+                datos.put("listado", new String[]{"Menu 1", "Menu2", "Contabilidad", "Horacio"});
+
+                return new ModelAndView(datos, "principal.html");
             } else {
                 return new ModelAndView(null, "/pages/examples/sesionperdida.html");
             }
@@ -101,10 +105,15 @@ public class Main {
 
         //para cualquier otra cosa redireccionar a la pagina 404
         get(":otraCosa", (request, response) -> {
-            //0log.error("404 pagina no encontrada!!");
-            HashMap<String, Object> datos = new HashMap<>();
-            datos.put("pagina", request.params(":otraCosa"));
-            return new ModelAndView(datos, "/pages/examples/404.html");
+
+            if (util.estaLogueado(request)) {
+                //0log.error("404 pagina no encontrada!!");
+                HashMap<String, Object> datos = new HashMap<>();
+                datos.put("pagina", request.params(":otraCosa"));
+                return new ModelAndView(datos, "/pages/examples/404.html");
+            } else {
+                return new ModelAndView(null, "/pages/examples/sesionperdida.html");
+            }
         }, fremarkerConfiguracion);
 
 
