@@ -6,7 +6,7 @@ http://www.templatemo.com/tm-407-solidity
 
 */
 
-body {  font: 14px/1.85em 'Open Sans', Arial, Helvetice Neue, sans-serif; color: #888888; font-weight: 300; font-style: normal; -webkit-font-smoothing: antialiased; /* Fix for webkit rendering */ -webkit-text-size-adjust: 100%; }
+body { font: 14px/1.85em 'Open Sans', Arial, Helvetice Neue, sans-serif; color: #888888; font-weight: 300; font-style: normal; -webkit-font-smoothing: antialiased; /* Fix for webkit rendering */ -webkit-text-size-adjust: 100%; }
 
 a, a:hover, a:focus { 
 	text-decoration: none; 
@@ -46,8 +46,9 @@ h1 {
 	margin-top: 60px;
 }
 
-.templatemo_title a { 
-	color: #3cb04a; 
+.templatemo_title a {
+	font-size: 30px;
+	color: #0000ff;
 }
 
 .templatemo_subtitle { 
@@ -124,7 +125,7 @@ a.menu-toggle-btn {
  	color: white; 
 	text-transform: uppercase; 
 	display: block; 
-	background-color: #3cb04a; 
+	background-color: #3cb04a;
 	-webkit-transition: all 150ms ease-in; 
 	-moz-transition: all 150ms ease-in; 
 	-o-transition: all 150ms ease-in; 
@@ -562,5 +563,26 @@ a.menu_toggle-btn i {
 	}
 	.templatemo_imagecontrol .gallery-item .overlay a { 
 	top: 22%;
+	}
+	.main_menu div.otty1 a {
+		background-color: #b02813;
+	 }
+	.main_menu div.otty2 a {
+		background-color: #f7ea08;
+	}
+	.main_menu div.otty3 a {
+		background-color: #3cb04a;
+	}
+	.main_menu div.otty4 a {
+		background-color: #112cb0;
+	}
+	.main_menu div.otty1 a:hover {
+		background-color: #972713;
+	}
+	.main_menu div.otty2 a:hover {
+		background-color: #d4c908;
+	}
+	.main_menu div.otty4 a:hover {
+		background-color: #0c1d74;
 	}
  }
