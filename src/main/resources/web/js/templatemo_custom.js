@@ -103,7 +103,7 @@ function loadScript() {
 function initialize() {
     var mapOptions = {
       zoom: 15,
-      center: new google.maps.LatLng(16.8496189,96.1288854)
+      center: new google.maps.LatLng(-20.9774436,-65.231012)
     };
     var map = new google.maps.Map(document.getElementById('templatemo_map'),  mapOptions);
 }
