@@ -18,6 +18,7 @@ import spark.ModelAndView;
 import spark.template.freemarker.FreeMarkerEngine;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static spark.Spark.*;
@@ -46,8 +47,8 @@ public class Main {
         //configuracion para MongoDB
         //aqui puede ir MongoClientOptions para personalizar las opciones d coneccion
         MongoClient clienteBase = new MongoClient("localhost", 27017);
-        MongoDatabase db = clienteBase.getDatabase("test");
-        MongoCollection<Document> coleccion = db.getCollection("names");  //trae documentos
+        MongoDatabase db = clienteBase.getDatabase("tvcable");
+        MongoCollection<Document> coleccion = db.getCollection("personas");  //trae documentos
         //MongoCollection<BsonDocument> collection = db.getCollection("names",BsonDocument.class);  //trae bsondocuments que son safe type
 
 
@@ -75,7 +76,29 @@ public class Main {
             if (util.estaLogueado(request)) {
 
                 HashMap<String, Object> datos = new HashMap<>();
-                datos.put("listado", new String[]{"Menu 1", "Menu2", "Contabilidad", "Horacio"});
+                String user = (String) request.session().attribute("usuario");
+
+                System.out.println("user: " + user);
+
+                //buscar de base los roles y aplicaciones
+                Bson filtro = new Document("usuario", user);
+                Document usuarioEncontrado = coleccion.find(filtro).first();
+
+
+                ArrayList<Document> listaRoles = coleccion.find(filtro).into(new ArrayList<Document>());
+                System.out.println("Mostrando --- " + listaRoles.size());
+                String[] vector = new String[2];
+                String nombre = null, ap = null, am;
+                for (Document i : listaRoles) {
+                    nombre = String.valueOf(i.get("nombre"));
+                    ap = String.valueOf(i.get("primer_apellido"));
+                    vector[0] = i.getString("password");
+                }
+
+
+                datos.put("aplicaciones", new String[]{"Personal", "Permisos", "Administracion", "Clientes", "Plataforma de Servicios"});
+                datos.put("nombre", nombre);
+                datos.put("primer_apellido", ap);
 
                 return new ModelAndView(datos, "principal.html");
             } else {
