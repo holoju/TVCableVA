@@ -87,6 +87,7 @@ public class Main {
 
                 ArrayList<Document> listaRoles = coleccion.find(filtro).into(new ArrayList<Document>());
                 System.out.println("Mostrando --- " + listaRoles.size());
+                Object v[] = listaRoles.toArray();
                 String[] vector = new String[2];
                 String nombre = null, ap = null, am;
                 for (Document i : listaRoles) {
@@ -95,8 +96,14 @@ public class Main {
                     vector[0] = i.getString("password");
                 }
 
+                String[] hj = new String[v.length];
+                for (int k = 0; k < v.length; k++) {
+                    hj[k] = String.valueOf(v[k]);
+                }
 
-                datos.put("aplicaciones", new String[]{"Personal", "Permisos", "Administracion", "Clientes", "Plataforma de Servicios"});
+                //FALTA RECUPERAR EL DOCUMENT Y BUSCAR POR OBJETOS
+                //datos.put("aplicaciones", new String[]{"Personal", "Permisos", "Administracion", "Clientes", "Plataforma de Servicios"});
+                datos.put("aplicaciones", hj);
                 datos.put("nombre", nombre);
                 datos.put("primer_apellido", ap);
 
